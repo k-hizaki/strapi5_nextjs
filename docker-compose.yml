@@ -1,0 +1,34 @@
+services:
+  strapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: node:22.14-bookworm-slim
+    environment:
+      # Strapi will use SQLite by default
+      DATABASE_CLIENT: sqlite
+      DATABASE_FILENAME: "./db.sqlite"
+      HOST: 0.0.0.0
+      PORT: 1337
+    volumes:
+      - strapi:/app/strapi
+    ports:
+      - '1337:1337'
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    environment:
+      # Point Next.js at the Strapi API
+      NEXT_PUBLIC_API_URL: http://strapi:1337
+    ports:
+      - '3000:3000'
+    depends_on:
+      - strapi
+
+volumes:
+  strapi:
